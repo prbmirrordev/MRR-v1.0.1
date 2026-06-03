@@ -1,2 +1,4 @@
 # MRR-v1.0.1-
 ring -1 erişimi
+
+# 4.06.2026 TARİHİNDE EN İYİ GÜNCELLEMELER İLE KARŞINIZDA OLUCAK
