@@ -1,0 +1,22 @@
+// ══════════════════════════════════════════════════════════════
+//  RING-1 LIBRARY - armrrOS (Pre-Boot Environment Simulation)
+// ══════════════════════════════════════════════════════════════
+//  Bu kütüphane, yazılan kodun BIOS'dan ve işletim sisteminden 
+//  tam olarak açılmadan, bütün uygulamalardan önce çalışmasını
+//  sağlayacak bir altyapıyı temsil eder.
+//
+//  İçerisinde kodu çalıştırmaya yetecek minik bir işletim sistemi
+//  olan "armrrOS" barındırır.
+//
+//  Not: Bu kütüphane şimdilik tasarımsal bir yapıtaşıdır (yorum
+//  satırı olarak eklenmiştir) ve derleyiciye doğrudan bir yan
+//  etkisi yoktur. İlerleyen aşamalarda KernelBlock'ları direkt
+//  ring-1 seviyesine compile etmek için kullanılacaktır.
+// ══════════════════════════════════════════════════════════════
+
+module ring_1;
+
+kernel fn initialize_armrros():
+    print("[armrrOS] Sistem başlatılıyor...")
+    print("[armrrOS] Ring-1 seviyesine erişim sağlandı.")
+    print("[armrrOS] MRR Execution Environment yüklendi.")
