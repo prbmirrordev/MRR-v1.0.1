@@ -1,0 +1,15 @@
+temporal mut balance: i32 = 100
+balance = 200
+balance = 300
+print(balance)
+balance.rollback(2)
+print(balance)
+
+let raw_input = input("Enter: ")
+print(raw_input)
+let safe_input = sanitize(raw_input)
+print(safe_input)
+
+for i in range(10):
+    for j in range(10):
+        let x = i + j
