@@ -1,0 +1,24 @@
+module network_test
+
+// Harici Python kütüphanelerini dahil ediyoruz
+add.code "requests"
+add.code "socket"
+
+#[entry]
+pub fn main() -> i32:
+    // 1. Socket kütüphanesi kullanımı
+    let hostname = socket::gethostname()
+    let local_ip = socket::gethostbyname(hostname)
+    
+    // 2. Requests kütüphanesi kullanımı
+    // Lütfen mrrinstall requests komutuyla kütüphaneyi kurduğunuzdan emin olun.
+    let response = requests::get("https://api.github.com/zen")
+    
+    print("Yerel IP Adresi: ")
+    print(local_ip)
+    print("\n")
+    print("Günün Zen Sözü (GitHub API): ")
+    print(response.text)
+    print("\n")
+    
+    0

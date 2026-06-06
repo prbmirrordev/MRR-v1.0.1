@@ -1,0 +1,44 @@
+/// MRR Memory Scanner Example
+/// Demonstrates the advanced memory interaction capabilities.
+
+import std::memory
+
+fn main() {
+    println("=== MRR Gelişmiş Bellek Analizi ===")
+    
+    // Sistemdeki processleri listele
+    let procs = memory::process_list()
+    println(string(len(procs)) + " adet aktif process bulundu.")
+    
+    // Sadece ilk 3 tanesini yazdıralım
+    println("Örnek Processler:")
+    for (let i = 0; i < 3; i++) {
+        if (i < len(procs)) {
+            let p = procs[i]
+            println(" PID: " + string(p["pid"]) + " -> " + p["name"])
+        }
+    }
+    
+    // Güvenlik: Exploit bloğu olmadan bellek müdahalesi yapılamaz!
+    println("\n[!] Diğer işlemler için belirli bir process'e bağlanmanız ve 'unsafe/exploit' bloğu kullanmanız gerekir.")
+    
+    /* 
+    Örnek Kullanım (Çalışması için test process'i açık olmalı)
+    
+    exploit {
+        try {
+            memory::attach("TestApp.exe")
+            println("TestApp.exe'ye başarıyla bağlanıldı!")
+            
+            // Pointer chain takibi örneği
+            // Base + 0x10 -> + 0x20 -> Hedef Adres
+            // Bu kısım mrr_memory_bridge fonksiyonlarını kullanmayı gerektirir.
+            
+        } catch (e) {
+            println("Bağlantı hatası: " + e)
+        }
+    }
+    */
+}
+
+main()

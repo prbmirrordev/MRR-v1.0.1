@@ -1,0 +1,33 @@
+/// MRR Stdlib Example: File I/O and Regex
+/// Demonstrates advanced built-in functions introduced in full version.
+
+fn main() {
+    let log_file = "test.log"
+    
+    // Dosya yazma
+    writefile(log_file, "ERROR: Access denied at 10:25\nINFO: System booted at 10:20\nERROR: Null pointer at 10:30\n")
+    println("Log dosyası oluşturuldu.")
+    
+    // Satır satır okuma
+    let lines = file_read_lines(log_file)
+    println("\nToplam Satır: " + string(len(lines)))
+    
+    // Hata olan satırları regex ile bulma
+    println("\nHatalar:")
+    let pattern = "^ERROR: (.*)"
+    
+    for (let i = 0; i < len(lines); i++) {
+        let line = lines[i]
+        if (regex_match(pattern, line)) {
+            // regex_find_all geriye bir liste döndürür, ilk eşleşmeyi alalım
+            let match = regex_find_all(pattern, line)
+            println(" -> " + string(match))
+        }
+    }
+    
+    // Dosyayı sil
+    file_delete(log_file)
+    println("\nLog dosyası temizlendi.")
+}
+
+main()

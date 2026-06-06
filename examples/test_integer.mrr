@@ -1,0 +1,17 @@
+module test
+
+#[entry]
+pub fn main() -> i32:
+    a = integer("1. sayıyı girin: ")
+    @b = integer("2. sayıyı girin: ")
+    islem = a + b
+    println(islem)
+
+    c = 15
+    d = 15
+    islem2 = c + d
+    println(islem2)
+    
+    0
+
+main()

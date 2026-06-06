@@ -1,0 +1,77 @@
+module vuln_scanner_advanced
+
+// Python'un gelişmiş Nmap kütüphanesini MRR'a ekliyoruz
+add.code "nmap"
+
+#[entry]
+pub fn main() -> i32:
+    println("=========================================")
+    println(" MRR ADVANCED VULN. SCANNER (NMAP LIB)   ")
+    println("=========================================")
+    
+    let hedef = input("\nTaranacak Hedef IP veya URL'yi girin: ")
+    
+    if len(trim(hedef)) == 0:
+        println("Hata: Hedef adresi boş bırakılamaz!")
+        return 1
+        
+    println("\n[+] Hedef: #{hedef}")
+    println("[*] Nmap PortScanner kütüphanesi yükleniyor...")
+    
+    try:
+        // nmap.PortScanner() nesnesini oluştur
+        let nm = nmap.PortScanner()
+        
+        let argumanlar = "-sS -sV --version-all -O --osscan-guess --script=\"default,vuln,discovery\" -p- -T4 -vv --packet-trace -D RND:10 -g 53 --mtu 24 --data-length 15 --randomize-hosts --spoof-mac 0"
+        
+        println("[*] Kapsamlı tarama başlatıldı. Bu işlem biraz zaman alabilir...")
+        
+        // Taramayı başlat (hosts, ports, arguments)
+        // null = tüm portlar, üçüncü argüman ise nmap parametreleri
+        nm.scan(hedef, null, argumanlar)
+        
+        println("\n[+] Tarama Bitti! Sonuçlar işleniyor...\n")
+        
+        // Tarama sonuçlarını nesne olarak alıp geziniyoruz
+        let host_listesi = nm.all_hosts()
+        
+        if len(host_listesi) == 0:
+            println("[-] Hedefe ulaşılamadı veya host kapalı.")
+            return 0
+            
+        for h in host_listesi:
+            println("════════════════════════════════════════════════════")
+            println("Hedef Cihaz: #{h} (#{nm[h].hostname()})")
+            println("Bağlantı Durumu: #{nm[h].state()}")
+            println("════════════════════════════════════════════════════")
+            
+            // Açık olan tüm protokolleri (tcp, udp vb) gez
+            let protokoller = nm[h].all_protocols()
+            for proto in protokoller:
+                println("\n[+] #{upper(proto)} Protokolü Sonuçları:")
+                
+                let portlar = keys(nm[h][proto])
+                for port in portlar:
+                    let port_bilgisi = nm[h][proto][port]
+                    let state = port_bilgisi["state"]
+                    let name = port_bilgisi["name"]
+                    let version = port_bilgisi["version"]
+                    
+                    println("  -> Port: #{port} \t Durum: #{state} \t Servis: #{name} \t Versiyon: #{version}")
+                    
+                    // Zafiyet taraması (script) sonuçlarını detaylı dök
+                    if has_key(port_bilgisi, "script"):
+                        println("     [!] Zafiyet / Analiz Betik (Script) Sonuçları:")
+                        let script_sonuclari = port_bilgisi["script"]
+                        let script_isimleri = keys(script_sonuclari)
+                        for s_isim in script_isimleri:
+                            let s_ciktisi = script_sonuclari[s_isim]
+                            // Çıktıyı daha güzel göstermek için başındaki sonundaki boşlukları temizleyelim
+                            println("       * #{s_isim}: \n         #{trim(s_ciktisi)}")
+
+    catch hata:
+        println("\n❌ Tarama sırasında bir hata oluştu veya python-nmap kütüphanesi eksik!")
+        println("Lütfen terminalde şu komutu çalıştırdığınızdan emin olun: pip install python-nmap")
+        println("Hata detayı: #{hata}")
+
+    0

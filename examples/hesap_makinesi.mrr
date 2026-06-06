@@ -1,0 +1,37 @@
+/// ═══════════════════════════════════════════════════════════
+/// MRR Language — Basit Hesap Makinesi (Simple Calculator)
+/// Demonstrates: functions, pattern matching, I/O
+/// ═══════════════════════════════════════════════════════════
+
+module hesap_makinesi
+
+use std::io
+
+#[entry]
+pub fn main() -> i32:
+    io::println("MRR Hesap Makinesi Başlatılıyor... 🔒")
+    
+    // İşlem yapılacak sayılar ve operatör
+    let sayi1 = 20
+    let sayi2 = 5
+    let operator = "+"
+    
+    let sonuc = hesapla(sayi1, sayi2, operator)
+    io::println("#{sayi1} #{operator} #{sayi2} = #{sonuc}")
+    
+    // Diğer operatörleri test edelim
+    io::println("Çıkarma: #{hesapla(10, 3, "-")}")
+    io::println("Çarpma: #{hesapla(4, 5, "*")}")
+    io::println("Bölme: #{hesapla(100, 4, "/")}")
+    
+    0 // Başarıyla tamamlandı (return 0)
+
+/// İki sayı ve bir operatör alır, işlemi hesaplayıp geri döndürür.
+pub fn hesapla(a: i32, b: i32, op: str) -> i32:
+    // Pattern matching (Rust `match` tarzı) kullanılarak işlemler seçilir
+    match op:
+        "+" => a + b,
+        "-" => a - b,
+        "*" => a * b,
+        "/" => a / b,
+        _   => 0

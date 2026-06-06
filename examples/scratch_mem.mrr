@@ -1,0 +1,21 @@
+module mem
+add.code "ctypes"
+add.code "builtins"
+add.code "time"
+add.code "os"
+
+#[entry]
+pub fn main() -> i32:
+    @pid = os::getpid()
+    print("PID: ")
+    println(pid)
+    
+    @veri = "MRR_BELLEK_TEST"
+    @adres = builtins::id(veri)
+    println(hex(adres))
+    
+    @ham = ctypes::string_at(adres, 32)
+    println(ham)
+    
+    0
+main()

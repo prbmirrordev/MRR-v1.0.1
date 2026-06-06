@@ -1,0 +1,145 @@
+/// ═══════════════════════════════════════════════════════════
+/// MRR Language — Shellcode Generator Example
+/// Demonstrates: unsafe blocks, raw memory, byte literals,
+///               inline assembly, shellcode blocks, hex ops
+/// ═══════════════════════════════════════════════════════════
+
+module shellcode_gen
+
+use std::io
+use std::mem
+use std::crypto
+
+/// Shellcode payload definition using MRR's `shellcode` block
+/// This generates position-independent code for x86_64
+#[arch("x86_64")]
+#[os("windows")]
+pub exploit MessageBoxShellcode {
+    author  = "MRR Security Lab"
+    target  = "Windows x86_64 User-mode"
+    description = "MessageBox shellcode with XOR encoding"
+
+    /// Check function — verifies target environment
+    fn check() -> bool {
+        let os = sys::get_os()
+        os == "windows" and sys::arch() == "x86_64"
+    }
+
+    /// Payload — the actual shellcode
+    fn payload() {
+        // ── Raw byte array (hex literal) ──
+        let raw_stub: [byte] = b"\x48\x31\xc0\x48\x89\xc1\x48\x89\xc2"
+
+        // ── Shellcode block: compiles to position-independent bytes ──
+        let sc = shellcode x86_64 {
+            // XOR key for encoding
+            xor rcx, rcx
+            mov cl, 0x41
+
+            // PEB walk to find kernel32.dll
+            mov rax, gs:[0x60]      // PEB
+            mov rax, [rax + 0x18]   // PEB->Ldr
+            mov rax, [rax + 0x20]   // InMemoryOrderModuleList
+            mov rax, [rax]          // Second entry (ntdll)
+            mov rax, [rax]          // Third entry (kernel32)
+            mov rbx, [rax + 0x20]   // DllBase
+
+            // Find GetProcAddress
+            // ... (abbreviated for example)
+
+            // Call MessageBoxA(NULL, "MRR", "Ring-0", MB_OK)
+            xor r9, r9              // MB_OK = 0
+            lea r8, [rip + title]   // lpCaption
+            lea rdx, [rip + msg]    // lpText
+            xor rcx, rcx            // hWnd = NULL
+            call rax                // MessageBoxA
+
+            // Data section
+            title: db "MRR", 0
+            msg:   db "Hello from MRR Shellcode!", 0
+        }
+
+        // ── XOR encode the shellcode ──
+        let xor_key: byte = 0x37
+        mut encoded = mem::alloc(sc.len())
+
+        for i in 0..sc.len() {
+            encoded[i] = sc[i] ^ xor_key
+        }
+
+        io::println("Shellcode size: #{sc.len()} bytes")
+        io::println("Encoded payload generated.")
+    }
+
+    /// Exploit execution
+    fn exploit() {
+        if not check() {
+            io::println("[!] Target check failed")
+            return
+        }
+        payload()
+    }
+}
+
+/// ═══════════════════════════════════════════════════════════
+/// Memory manipulation utilities
+/// ═══════════════════════════════════════════════════════════
+
+/// Process memory scanner using unsafe raw pointers
+pub fn scan_memory(base: ptr<byte>, size: usize, pattern: [byte]) -> [usize] {
+    mut results: [usize] = []
+    
+    unsafe {
+        for offset in 0..(size - pattern.len()) {
+            mut found = true
+            
+            for j in 0..pattern.len() {
+                let addr = base.offset(offset + j)
+                let val = volatile addr.read()
+                
+                if val != pattern[j] {
+                    found = false
+                    break
+                }
+            }
+            
+            if found {
+                results.push(offset)
+            }
+        }
+    }
+    
+    results
+}
+
+/// AES-encrypt a buffer in-place
+pub fn encrypt_payload(mut data: ref [byte], key: [byte; 16]) {
+    let cipher = crypto::AES256::new(key)
+    
+    // Process in 16-byte blocks
+    for block_start in (0..data.len()).step_by(16) {
+        let block_end = mem::min(block_start + 16, data.len())
+        mut block = data[block_start..block_end]
+        cipher.encrypt_block(ref block)
+    }
+}
+
+/// Direct inline assembly for CPUID instruction
+pub fn get_cpu_info() -> (u32, u32, u32, u32) {
+    mut eax: u32 = 0
+    mut ebx: u32 = 0
+    mut ecx: u32 = 0
+    mut edx: u32 = 0
+    
+    unsafe {
+        asm {
+            "mov eax, 1"
+            "cpuid"
+            : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)  // outputs
+            :                                                  // inputs
+            : "eax", "ebx", "ecx", "edx"                      // clobbers
+        }
+    }
+    
+    (eax, ebx, ecx, edx)
+}

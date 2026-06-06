@@ -1,0 +1,16 @@
+module req_tester
+add.code "requests"
+add.code "random"
+#[entry]
+pub fn main() -> i32:
+    let url = "https://httpbin.org/user-agent"
+    let uas = [
+        "Test UA 1",
+        "Test UA 2"
+    ]
+    let ua = random::choice(uas)
+    let session = requests::Session()
+    session.headers["User-Agent"] = ua
+    let resp = session.get(url)
+    print(resp.text)
+    0

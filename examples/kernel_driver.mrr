@@ -1,0 +1,248 @@
+/// ═══════════════════════════════════════════════════════════
+/// MRR Language — Kernel Driver Example
+/// Demonstrates: Ring-0 constructs, driver declarations,
+///               interrupt handlers, port I/O, SSDT hooks
+/// ═══════════════════════════════════════════════════════════
+
+module kernel_driver
+
+use std::io
+use std::mem
+use std::kernel
+
+/// ─── Ring-0 Data Structures ──────────────────────────────
+
+/// Packed struct for hardware register layout (C-compatible ABI)
+#[repr(C)]
+#[packed]
+pub struct DeviceRegisters {
+    pub status:   volatile u32,
+    pub control:  volatile u32,
+    pub data_in:  volatile u32,
+    pub data_out: volatile u32,
+    _reserved:    [u8; 48]      // Padding to 64-byte boundary
+}
+
+/// IOCTL codes for our driver
+pub enum IoctlCode : u32 {
+    ReadMemory   = 0x800,
+    WriteMemory  = 0x801,
+    GetRegisters = 0x802,
+    InjectCode   = 0x803,
+    HookSyscall  = 0x804
+}
+
+/// ─── Driver Declaration ──────────────────────────────────
+
+/// MRR driver block — compiles to Windows WDM/WDF driver skeleton
+/// or Linux kernel module based on target
+#[target("windows")]
+pub driver MrrSecurityDriver {
+    /// Driver entry point — called by OS on load
+    fn driver_entry(driver_object: ptr<void>, registry_path: ptr<u16>) -> i32 {
+        kernel::log("[MRR] Driver loaded successfully")
+        kernel::log("[MRR] Registry: #{registry_path}")
+
+        // Set up IRP dispatch table
+        let dispatch = kernel::get_dispatch_table(driver_object)
+        dispatch.create  = irp_create
+        dispatch.close   = irp_close
+        dispatch.ioctl   = irp_device_control
+        dispatch.unload  = driver_unload
+
+        // Create device object
+        let device_name = kernel::unicode("\\Device\\MrrSec")
+        let symlink     = kernel::unicode("\\DosDevices\\MrrSec")
+
+        let status = kernel::create_device(
+            driver_object,
+            device_name,
+            kernel::FILE_DEVICE_UNKNOWN
+        )
+
+        if status != 0 {
+            kernel::log("[MRR] Failed to create device: #{status}")
+            return status
+        }
+
+        kernel::create_symlink(symlink, device_name)
+        kernel::log("[MRR] Device created: \\Device\\MrrSec")
+
+        0  // STATUS_SUCCESS
+    }
+
+    /// Driver unload
+    fn driver_unload(driver_object: ptr<void>) {
+        kernel::log("[MRR] Driver unloading...")
+        kernel::delete_symlink(kernel::unicode("\\DosDevices\\MrrSec"))
+        kernel::delete_device(driver_object)
+    }
+
+    /// IRP Create handler
+    fn irp_create(device: ptr<void>, irp: ptr<void>) -> i32 {
+        kernel::complete_irp(irp, 0, 0)
+        0
+    }
+
+    /// IRP Close handler
+    fn irp_close(device: ptr<void>, irp: ptr<void>) -> i32 {
+        kernel::complete_irp(irp, 0, 0)
+        0
+    }
+
+    /// IRP Device Control — handle IOCTLs
+    fn irp_device_control(device: ptr<void>, irp: ptr<void>) -> i32 {
+        let stack = kernel::get_irp_stack(irp)
+        let code  = stack.ioctl_code as IoctlCode
+
+        let status = match code {
+            IoctlCode::ReadMemory   => handle_read_memory(irp),
+            IoctlCode::WriteMemory  => handle_write_memory(irp),
+            IoctlCode::GetRegisters => handle_get_registers(irp),
+            IoctlCode::HookSyscall  => handle_hook_syscall(irp),
+            _ => {
+                kernel::log("[MRR] Unknown IOCTL: #{code}")
+                0xC0000001  // STATUS_UNSUCCESSFUL
+            }
+        }
+
+        kernel::complete_irp(irp, status, 0)
+        status
+    }
+}
+
+/// ─── Ring-0 Handlers ─────────────────────────────────────
+
+/// Read arbitrary kernel memory (for forensics/analysis)
+kernel fn handle_read_memory(irp: ptr<void>) -> i32 {
+    unsafe {
+        let input  = kernel::get_irp_input_buffer(irp)
+        let output = kernel::get_irp_output_buffer(irp)
+
+        let addr: ptr<byte> = (input as ptr<u64>).read() as ptr<byte>
+        let size: usize     = ((input as ptr<u64>).offset(1)).read() as usize
+
+        // Validate address range before read
+        if not kernel::is_valid_address(addr, size) {
+            kernel::log("[MRR] Invalid address: #{addr}")
+            return 0xC0000005  // STATUS_ACCESS_VIOLATION
+        }
+
+        mem::copy(addr, output as ptr<byte>, size)
+        kernel::set_irp_info(irp, size)
+    }
+
+    0  // STATUS_SUCCESS
+}
+
+/// Write to kernel memory
+kernel fn handle_write_memory(irp: ptr<void>) -> i32 {
+    unsafe {
+        let input = kernel::get_irp_input_buffer(irp)
+        let addr: ptr<byte> = (input as ptr<u64>).read() as ptr<byte>
+        let size: usize     = ((input as ptr<u64>).offset(1)).read() as usize
+        let data: ptr<byte> = (input as ptr<byte>).offset(16)
+
+        // Disable write protection temporarily
+        ring0 {
+            let cr0 = asm { "mov rax, cr0" : "=a"(cr0) }
+            cr0 = cr0 & ~(1 << 16)  // Clear WP bit
+            asm { "mov cr0, rax" : : "a"(cr0) }
+        }
+
+        mem::copy(data, addr, size)
+
+        // Re-enable write protection
+        ring0 {
+            let cr0 = asm { "mov rax, cr0" : "=a"(cr0) }
+            cr0 = cr0 | (1 << 16)   // Set WP bit
+            asm { "mov cr0, rax" : : "a"(cr0) }
+        }
+    }
+
+    0
+}
+
+/// Get CPU registers snapshot
+kernel fn handle_get_registers(irp: ptr<void>) -> i32 {
+    let output = kernel::get_irp_output_buffer(irp)
+    
+    unsafe {
+        let regs = output as ptr<u64>
+        
+        asm {
+            "mov [rdi],      rax"
+            "mov [rdi + 8],  rbx"
+            "mov [rdi + 16], rcx"
+            "mov [rdi + 24], rdx"
+            "mov [rdi + 32], rsi"
+            "mov [rdi + 40], rdi"
+            "mov [rdi + 48], rsp"
+            "mov [rdi + 56], rbp"
+            "mov [rdi + 64], r8"
+            "mov [rdi + 72], r9"
+            "mov [rdi + 80], r10"
+            "mov [rdi + 88], r11"
+            "mov [rdi + 96], r12"
+            "mov [rdi + 104], r13"
+            "mov [rdi + 112], r14"
+            "mov [rdi + 120], r15"
+            : : "D"(regs) : "memory"
+        }
+        
+        kernel::set_irp_info(irp, 128)
+    }
+
+    0
+}
+
+/// SSDT hook installation
+kernel fn handle_hook_syscall(irp: ptr<void>) -> i32 {
+    unsafe {
+        let input = kernel::get_irp_input_buffer(irp)
+        let syscall_id: u32 = (input as ptr<u32>).read()
+        
+        // Get SSDT base address
+        let ssdt_base = kernel::get_ssdt_base()
+        
+        if ssdt_base.is_null() {
+            kernel::log("[MRR] Failed to locate SSDT")
+            return 0xC0000001
+        }
+
+        kernel::log("[MRR] SSDT hook installed for syscall #{syscall_id}")
+    }
+    
+    0
+}
+
+/// ─── Interrupt Handler Example ───────────────────────────
+
+/// Custom interrupt handler (IDT entry)
+#[interrupt(vector = 0x80)]
+pub fn custom_interrupt_handler(frame: ref kernel::InterruptFrame) {
+    kernel::log("[MRR] Interrupt 0x80 triggered!")
+    kernel::log("  RIP = #{frame.rip:#018x}")
+    kernel::log("  RSP = #{frame.rsp:#018x}")
+    kernel::log("  CS  = #{frame.cs:#06x}")
+
+    // Acknowledge interrupt
+    unsafe {
+        port::out_byte(0x20, 0x20)  // PIC EOI
+    }
+}
+
+/// ─── Hook Example ────────────────────────────────────────
+
+/// Inline hook on NtCreateFile
+hook NtCreateFile(type = "inline") {
+    fn before(args: ref kernel::SyscallArgs) {
+        kernel::log("[MRR-HOOK] NtCreateFile called")
+        kernel::log("  FileHandle: #{args[0]:#x}")
+        kernel::log("  DesiredAccess: #{args[1]:#x}")
+    }
+
+    fn after(result: i32) {
+        kernel::log("[MRR-HOOK] NtCreateFile returned: #{result:#x}")
+    }
+}

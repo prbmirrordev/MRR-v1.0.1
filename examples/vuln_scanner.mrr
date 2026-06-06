@@ -1,0 +1,35 @@
+module vuln_scanner
+
+// İşletim sistemi komutlarını çalıştırmak için Python'un 'os' kütüphanesini MRR'a ekliyoruz
+add.code "os"
+
+#[entry]
+pub fn main() -> i32:
+    // 1. Karşılama Ekranı (Banner)
+    println("====================")
+    println(" MRR VULN. SCANNER  ")
+    println("====================")
+    
+    // 2. Kullanıcıdan IP veya URL bilgisini al
+    let hedef = input("\nTaranacak Hedef IP veya URL'yi girin: ")
+    
+    // Boş girilip girilmediğini kontrol et
+    if len(trim(hedef)) == 0:
+        println("Hata: Hedef adresi boş bırakılamaz!")
+        return 1
+        
+    println("\n[+] Hedef: #{hedef}")
+    println("[*] Kapsamlı zafiyet taraması başlatılıyor...")
+    println("[*] Bu işlem biraz zaman alabilir, lütfen bekleyin...\n")
+    
+    // 3. Nmap komutunu hazırla (Değişkeni string içine gömüyoruz)
+    let nmap_komutu = "nmap -sS -sV --version-all -O --osscan-guess --script=\"default,vuln,discovery\" -p- -T4 -vv --packet-trace -D RND:10 -g 53 --mtu 24 --data-length 15 --randomize-hosts --spoof-mac 0 #{hedef}"
+    
+    // 4. Komutu çalıştır
+    // os.system çalıştırıldığında çıktıyı doğrudan terminale döker
+    os.system(nmap_komutu)
+    
+    println("\n[+] Tarama tamamlandı.")
+    
+    // Başarıyla bitir
+    0

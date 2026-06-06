@@ -1,0 +1,20 @@
+// FFI Test Betiği
+
+// Python'ın 'math' ve 'os' kütüphanelerini FFI Bridge üzerinden MRR'ye aktarıyoruz.
+add.code "math"
+add.code "os" : getpid
+
+Fonction.create "show_security_info" ():
+    let pid = os.getpid()
+    println("[MRR] İşlem Kimliği (PID): #{pid}")
+    
+    // Güvenli karekök hesaplama
+    let root = math.sqrt(256)
+    println("[MRR] 256'nın karekökü: #{root}")
+
+Fonction.create "main" ():
+    println("--- MRR FFI & Interpreter Testi ---")
+    show_security_info()
+    println("Çift modlu (Dual-Mode) çalışma başarılı!")
+
+main()

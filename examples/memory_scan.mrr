@@ -1,0 +1,267 @@
+/// ═══════════════════════════════════════════════════════════
+/// MRR Language — Memory Scanner Example
+/// Demonstrates: process interaction, pattern scanning,
+///               pointer chains, Ruby-style blocks, generics
+/// ═══════════════════════════════════════════════════════════
+
+module memory_scan
+
+use std::io
+use std::mem
+use std::process
+use std::fmt
+
+/// Generic result type (Rust-style)
+pub enum Result<T, E> {
+    Ok(T),
+    Err(E)
+}
+
+/// Memory region descriptor
+pub struct MemoryRegion {
+    pub base:   usize,
+    pub size:   usize,
+    pub protect: u32,
+    pub state:   u32,
+    pub type_:   u32
+}
+
+/// Process memory scanner class
+pub struct Scanner {
+    pid:       u32,
+    handle:    ptr<void>,
+    regions:   [MemoryRegion]
+}
+
+impl Scanner {
+    /// Open a process for scanning
+    pub fn open(pid: u32) -> Result<Scanner, str> {
+        let handle = unsafe { process::open(pid, process::ALL_ACCESS) }
+        
+        if handle.is_null() {
+            return Result::Err("Failed to open process #{pid}")
+        }
+        
+        Result::Ok(Scanner {
+            pid: pid,
+            handle: handle,
+            regions: []
+        })
+    }
+    
+    /// Enumerate all memory regions
+    pub fn enumerate_regions(mut ref self) -> usize {
+        self.regions.clear()
+        mut addr: usize = 0
+        
+        unsafe {
+            loop {
+                let info = process::virtual_query(self.handle, addr as ptr<void>)
+                
+                match info {
+                    Result::Ok(region) => {
+                        if region.state == mem::MEM_COMMIT {
+                            self.regions.push(region)
+                        }
+                        addr += region.size
+                    },
+                    Result::Err(_) => break
+                }
+            }
+        }
+        
+        self.regions.len()
+    }
+    
+    /// Scan for byte pattern with wildcard support
+    /// Pattern format: "48 8B ?? 10 FF" where ?? = wildcard
+    pub fn pattern_scan(ref self, pattern_str: str) -> [usize] {
+        let pattern = parse_pattern(pattern_str)
+        mut results: [usize] = []
+        
+        for region in self.regions {
+            // Read region memory
+            let buffer = unsafe {
+                process::read_memory(self.handle, 
+                                     region.base as ptr<byte>,
+                                     region.size)
+            }
+            
+            match buffer {
+                Result::Ok(data) => {
+                    // Boyer-Moore-Horspool search with wildcards
+                    let matches = search_pattern(data, pattern)
+                    
+                    for offset in matches {
+                        results.push(region.base + offset)
+                    }
+                },
+                Result::Err(_) => continue
+            } otherwise {
+                Process::new(pid)
+            }
+        }
+        
+        results
+    }
+    
+    /// Read a value at address (generic)
+    pub fn read<T>(ref self, addr: usize) -> Result<T, str> {
+        unsafe {
+            let buffer = mem::alloc(mem::size_of::<T>())
+            let ok = process::read_memory_raw(
+                self.handle, addr as ptr<void>,
+                buffer, mem::size_of::<T>()
+            )
+            
+            if ok {
+                let value = (buffer as ptr<T>).read()
+                mem::free(buffer)
+                Result::Ok(value)
+            } otherwise {
+                mem::free(buffer)
+                Result::Err("Read failed at #{addr:#x}")
+            }
+        }
+    }
+    
+    /// Write a value at address
+    pub fn write<T>(ref self, addr: usize, value: T) -> Result<bool, str> {
+        unsafe {
+            let ok = process::write_memory(
+                self.handle, addr as ptr<void>,
+                ref value as ptr<byte>, mem::size_of::<T>()
+            )
+            
+            if ok { Result::Ok(true) }
+            otherwise  { Result::Err("Write failed at #{addr:#x}") }
+        }
+    }
+    
+    /// Follow a pointer chain (e.g., [[base + 0x10] + 0x20] + 0x8)
+    pub fn resolve_pointer_chain(ref self, base: usize, offsets: [isize]) -> Result<usize, str> {
+        mut addr = base
+        
+        for i in 0..offsets.len() {
+            addr = (addr as isize + offsets[i]) as usize
+            
+            if i < offsets.len() - 1 {
+                // Dereference pointer
+                match self.read::<usize>(addr) {
+                    Result::Ok(next) => addr = next,
+                    Result::Err(e)   => return Result::Err(e)
+                }
+            }
+        }
+        
+        Result::Ok(addr)
+    }
+    
+    /// Cleanup
+    pub fn close(mut ref self) {
+        if not self.handle.is_null() {
+            unsafe { process::close(self.handle) }
+            self.handle = null
+        }
+    }
+}
+
+/// Implement Drop trait for auto-cleanup (Rust RAII)
+impl Drop for Scanner {
+    fn drop(mut ref self) {
+        self.close()
+    }
+}
+
+/// ─── Pattern Parsing ─────────────────────────────────────
+
+struct PatternByte {
+    value:    byte,
+    is_wild:  bool
+}
+
+fn parse_pattern(pattern_str: str) -> [PatternByte] {
+    mut result: [PatternByte] = []
+    
+    for token in pattern_str.split(' ') {
+        if token == "??" or token == "?" {
+            result.push(PatternByte { value: 0, is_wild: true })
+        } otherwise {
+            let val = byte::from_hex(token)
+            result.push(PatternByte { value: val, is_wild: false })
+        }
+    }
+    
+    result
+}
+
+fn search_pattern(data: [byte], pattern: [PatternByte]) -> [usize] {
+    mut matches: [usize] = []
+    
+    if data.len() < pattern.len() {
+        return matches
+    }
+    
+    for i in 0..(data.len() - pattern.len() + 1) {
+        mut found = true
+        
+        for j in 0..pattern.len() {
+            if not pattern[j].is_wild and data[i + j] != pattern[j].value {
+                found = false
+                break
+            }
+        }
+        
+        if found {
+            matches.push(i)
+        }
+    }
+    
+    matches
+}
+
+/// ─── Main Entry ──────────────────────────────────────────
+
+#[entry]
+pub fn main() -> i32 {
+    io::println("╔══════════════════════════════════════╗")
+    io::println("║    MRR Memory Scanner v0.1.0         ║")
+    io::println("╚══════════════════════════════════════╝")
+    
+    // Scan target process
+    let target_pid: u32 = 1234
+    
+    match Scanner::open(target_pid) {
+        Result::Ok(mut scanner) => {
+            let count = scanner.enumerate_regions()
+            io::println("[+] Found #{count} memory regions")
+            
+            // Search for pattern
+            let results = scanner.pattern_scan("48 8B 05 ?? ?? ?? ?? 48 89")
+            io::println("[+] Pattern matches: #{results.len()}")
+            
+            for addr in results {
+                io::println("    → #{addr:#018x}")
+            }
+            
+            // Pointer chain resolution
+            match scanner.resolve_pointer_chain(0x7FF600000000, [0x10, 0x20, 0x8]) {
+                Result::Ok(final_addr) => {
+                    io::println("[+] Resolved address: #{final_addr:#018x}")
+                    
+                    match scanner.read::<i32>(final_addr) {
+                        Result::Ok(value) => io::println("[+] Value: #{value}"),
+                        Result::Err(e)    => io::println("[-] #{e}")
+                    }
+                },
+                Result::Err(e) => io::println("[-] Chain failed: #{e}")
+            }
+        },
+        Result::Err(e) => {
+            io::println("[-] Error: #{e}")
+            return 1
+        }
+    }
+    
+    0
+}

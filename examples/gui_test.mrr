@@ -1,0 +1,103 @@
+// MRR Modern GUI Engine Testi
+
+// 1. Arayüz Motorunu Yükle
+add.code "gui"
+
+// 2. İş mantığı fonksiyonu (Backend)
+Fonction.create "calculate_system_hash" (data):
+    // Normalde burada sistem özellikleri veya Ring-0 çekirdek verileri işlenebilir
+    println("[Backend] İstemciden gelen veri: #{data}")
+    return "MRR-SECURE-HASH-X99"
+
+// 3. Backend fonksiyonunu Frontend (JS) dünyasına aç (Register)
+gui.register("calculate_system_hash", calculate_system_hash)
+
+// 4. Tasarım: HTML / CSS / JS bloğu
+// "qwebchannel.js" motor tarafından otomatik eklenecektir.
+let html_design = r"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #252526;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 1px solid #3c3c3c;
+        }
+        h1 {
+            color: #569cd6;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #1177bb;
+        }
+        #resultBox {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #1e1e1e;
+            border-left: 4px solid #c586c0;
+            display: none;
+        }
+        .keyword { color: #c586c0; }
+        .string { color: #ce9178; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <h1><span class='keyword'>MRR</span> Modern GUI Motoru</h1>
+        <p>Frontend (HTML/JS) ve Backend (MRR) iletişimi örneği</p>
+        
+        <button onclick='callBackend()'>Sistem Hash'i Üret (Backend'i Çağır)</button>
+        
+        <div id='resultBox'>
+            <span class='keyword'>let</span> hash = <span class='string'>'<span id='hashValue'></span>'</span>;
+        </div>
+    </div>
+
+    <script>
+        function callBackend() {
+            // Frontend'den Backend'deki 'calculate_system_hash' MRR fonksiyonuna çağrı yapıyoruz.
+            MRR.call('calculate_system_hash', ['Frontendden Selamlar!'], function(response) {
+                if (response.status === 'success') {
+                    document.getElementById('hashValue').innerText = response.result;
+                    document.getElementById('resultBox').style.display = 'block';
+                } else {
+                    alert('Backend Hatası: ' + response.error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+"
+
+Fonction.create "main" ():
+    println("[MRR] Arayüz motoru başlatılıyor...")
+    // Chromium motoruna HTML'i gönder ve pencereyi aç
+    gui.render(html_design, "MRR Güvenlik Paneli - Çapraz Platform")
+
+main()

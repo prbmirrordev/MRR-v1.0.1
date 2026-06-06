@@ -1,0 +1,84 @@
+/// ═══════════════════════════════════════════════════════════
+/// MRR Language — Hello World Example
+/// Demonstrates: modules, functions, string literals, I/O
+/// ═══════════════════════════════════════════════════════════
+
+module hello
+
+use std::io
+use std::fmt
+
+/// Entry point — MRR uses `fn main()` like Rust,
+/// but allows Ruby-style optional parentheses and
+/// C#-style attributes via #[...]
+#[entry]
+pub fn main() -> i32 {
+    // Immutable binding (Rust-style `let`)
+    let message = "Hello from MRR! 🔒"
+    
+    // Mutable binding
+    mut counter: i32 = 0
+    
+    // Ruby-style string interpolation with #{}
+    io::println("#{message} — Counter: #{counter}")
+    
+    // C#-style foreach with Rust range syntax
+    for i in 0..10 {
+        counter += i
+        io::println("  Step #{i}: sum = #{counter}")
+    }
+    
+    // Pattern matching (Rust `match` + Ruby `when` expressiveness)
+    let status = match counter {
+        0       => "zero",
+        1..=10  => "small",
+        11..=50 => "medium",
+        _       => "large"
+    }
+    
+    io::println("Final result: #{counter} (#{status})")
+    
+    // Implicit return (Ruby-style — last expression is return value)
+    0
+}
+
+/// Custom struct with C#-style properties and Rust derive
+#[derive(Debug, Clone)]
+pub struct Config {
+    pub name: str,
+    pub verbose: bool,
+    pub max_retries: u32
+}
+
+/// Implementation block (Rust-style)
+impl Config {
+    /// Constructor — Ruby-style `new`
+    pub fn new(name: str) -> Config {
+        Config {
+            name: name,
+            verbose: false,
+            max_retries: 3
+        }
+    }
+    
+    /// Method with self
+    pub fn display(ref self) {
+        io::println("Config: #{self.name}, verbose=#{self.verbose}")
+    }
+}
+
+/// Trait definition (Rust + C# interface hybrid)
+pub trait Printable {
+    fn to_string(ref self) -> str
+    fn print(ref self) {
+        // Default implementation (like Rust/C# default interface methods)
+        io::println(self.to_string())
+    }
+}
+
+/// Trait implementation
+impl Printable for Config {
+    fn to_string(ref self) -> str {
+        "Config(#{self.name})"
+    }
+}

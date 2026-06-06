@@ -1,0 +1,25 @@
+/// MRR HTTP Client Example
+/// Shows how to use the standard network module for portswinger_http
+
+import std::network
+
+fn main() {
+    println("MRR Portswinger HTTP İstemcisi Başlatılıyor...")
+    
+    let url = "http://example.com"
+    println("GET isteği atılıyor: " + url)
+    
+    // HTTP GET
+    let response = network::http_get(url)
+    
+    if (response["status"] == 0) {
+        println("Bağlantı Hatası: " + response["error"])
+    } else {
+        println("Durum Kodu: " + string(response["status"]))
+        // Sadece ilk 100 karakteri yazdır
+        let body = response["body"]
+        println("Gövde (İlk 100 karakter):\n" + substring(body, 0, 100) + "...")
+    }
+}
+
+main()
