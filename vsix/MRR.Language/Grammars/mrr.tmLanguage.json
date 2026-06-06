@@ -1,0 +1,441 @@
+{
+    "$schema": "https://raw.githubusercontent.com/nicbarker/vscode-textmate-grammar-schema/main/tmlanguage.json",
+    "name": "MRR",
+    "scopeName": "source.mrr",
+    "fileTypes": [".mrr"],
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#meta_structures" },
+        { "include": "#keywords" },
+        { "include": "#types" },
+        { "include": "#cyber_keywords" },
+        { "include": "#network_keywords" },
+        { "include": "#security_keywords" },
+        { "include": "#async_keywords" },
+        { "include": "#operators" },
+        { "include": "#mrr_commands" },
+        { "include": "#decorators" },
+        { "include": "#functions" },
+        { "include": "#attributes" },
+        { "include": "#variables" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.documentation.mrr",
+                    "match": "///.*$"
+                },
+                {
+                    "name": "comment.line.double-slash.mrr",
+                    "match": "//.*$"
+                },
+                {
+                    "name": "comment.line.hash.mrr",
+                    "match": "#(?!\\[|\\{).*$"
+                },
+                {
+                    "name": "comment.block.mrr",
+                    "begin": "/\\*",
+                    "end": "\\*/",
+                    "patterns": [
+                        {
+                            "name": "comment.block.nested.mrr",
+                            "begin": "/\\*",
+                            "end": "\\*/"
+                        }
+                    ]
+                }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.mrr",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.mrr",
+                            "match": "\\\\(?:[ntrba0fv\\\\\"']|x[0-9a-fA-F]{2}|u\\{[0-9a-fA-F]+\\})"
+                        },
+                        {
+                            "name": "meta.interpolation.mrr",
+                            "begin": "#\\{",
+                            "end": "\\}",
+                            "beginCaptures": {
+                                "0": { "name": "punctuation.definition.interpolation.begin.mrr" }
+                            },
+                            "endCaptures": {
+                                "0": { "name": "punctuation.definition.interpolation.end.mrr" }
+                            },
+                            "patterns": [
+                                { "include": "$self" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "string.quoted.single.mrr",
+                    "match": "'(?:[^'\\\\]|\\\\.)'"
+                },
+                {
+                    "name": "string.quoted.byte.mrr",
+                    "begin": "b\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.hex.mrr",
+                            "match": "\\\\x[0-9a-fA-F]{2}"
+                        }
+                    ]
+                },
+                {
+                    "name": "string.quoted.raw.mrr",
+                    "begin": "r\"",
+                    "end": "\""
+                },
+                {
+                    "name": "string.interpolated.fstring.mrr",
+                    "begin": "f\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.mrr",
+                            "match": "\\\\."
+                        },
+                        {
+                            "name": "meta.interpolation.mrr",
+                            "begin": "#\\{",
+                            "end": "\\}",
+                            "patterns": [
+                                { "include": "$self" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.hex.mrr",
+                    "match": "\\b0[xX][0-9a-fA-F][0-9a-fA-F_]*\\b"
+                },
+                {
+                    "name": "constant.numeric.binary.mrr",
+                    "match": "\\b0[bB][01][01_]*\\b"
+                },
+                {
+                    "name": "constant.numeric.octal.mrr",
+                    "match": "\\b0[oO][0-7][0-7_]*\\b"
+                },
+                {
+                    "name": "constant.numeric.float.mrr",
+                    "match": "\\b[0-9][0-9_]*\\.[0-9][0-9_]*([eE][+-]?[0-9]+)?\\b"
+                },
+                {
+                    "name": "constant.numeric.integer.mrr",
+                    "match": "\\b[0-9][0-9_]*\\b"
+                }
+            ]
+        },
+        "meta_structures": {
+            "patterns": [
+                {
+                    "name": "meta.function.definition.mrr",
+                    "match": "\\b(Fonction\\.create|Function\\.create)\\s+(\"[^\"]+\")\\s*(\\()",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.function.mrr" },
+                        "2": { "name": "entity.name.function.mrr" },
+                        "3": { "name": "punctuation.definition.parameters.begin.mrr" }
+                    }
+                },
+                {
+                    "name": "meta.function.fn.mrr",
+                    "match": "\\b(fn)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.function.mrr" },
+                        "2": { "name": "entity.name.function.definition.mrr" }
+                    }
+                },
+                {
+                    "name": "meta.class.mrr",
+                    "match": "\\b(class)\\s+([A-Z][a-zA-Z0-9_]*)\\b",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.class.mrr" },
+                        "2": { "name": "entity.name.type.class.mrr" }
+                    }
+                },
+                {
+                    "name": "meta.struct.mrr",
+                    "match": "\\b(struct)\\s+([A-Z][a-zA-Z0-9_]*)\\b",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.struct.mrr" },
+                        "2": { "name": "entity.name.type.struct.mrr" }
+                    }
+                },
+                {
+                    "name": "meta.enum.mrr",
+                    "match": "\\b(enum)\\s+([A-Z][a-zA-Z0-9_]*)\\b",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.enum.mrr" },
+                        "2": { "name": "entity.name.type.enum.mrr" }
+                    }
+                },
+                {
+                    "name": "meta.trait.mrr",
+                    "match": "\\b(trait)\\s+([A-Z][a-zA-Z0-9_]*)\\b",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.trait.mrr" },
+                        "2": { "name": "entity.name.type.trait.mrr" }
+                    }
+                },
+                {
+                    "name": "meta.impl.mrr",
+                    "match": "\\b(impl)\\s+([A-Z][a-zA-Z0-9_]*)\\b",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.impl.mrr" },
+                        "2": { "name": "entity.name.type.mrr" }
+                    }
+                },
+                {
+                    "name": "meta.exploit.mrr",
+                    "match": "\\b(exploit)\\s+(\"[^\"]+\")",
+                    "captures": {
+                        "1": { "name": "keyword.cyber.exploit.mrr" },
+                        "2": { "name": "entity.name.tag.exploit.mrr" }
+                    }
+                },
+                {
+                    "name": "meta.module.mrr",
+                    "match": "\\b(module)\\s+([a-zA-Z_][a-zA-Z0-9_:]*)",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.module.mrr" },
+                        "2": { "name": "entity.name.namespace.mrr" }
+                    }
+                },
+                {
+                    "name": "meta.import.mrr",
+                    "match": "\\b(add\\.code)\\s+(\"[^\"]+\")",
+                    "captures": {
+                        "1": { "name": "keyword.control.import.mrr" },
+                        "2": { "name": "string.quoted.double.import.mrr" }
+                    }
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.mrr",
+                    "match": "\\b(if|otherwise|elif|match|for|return\\.code|loop|break|continue|return|yield|in|try|catch|finally|throw|do|from|where|delete|while|pass)\\b"
+                },
+                {
+                    "name": "keyword.declaration.mrr",
+                    "match": "\\b(fn|let|mut|const|static|struct|enum|trait|impl|module|use|pub|priv|type|class|import)\\b"
+                },
+                {
+                    "name": "keyword.memory.mrr",
+                    "match": "\\b(unsafe|raw|ref|own|drop|alloc|stack|pin|volatile|align)\\b"
+                },
+                {
+                    "name": "keyword.other.mrr",
+                    "match": "\\b(as|is|not|and|or|async|await|defer|self|super|spawn|channel|select)\\b"
+                },
+                {
+                    "name": "constant.language.mrr",
+                    "match": "\\b(true|false|null|None|Some|Ok|Err)\\b"
+                }
+            ]
+        },
+        "types": {
+            "patterns": [
+                {
+                    "name": "storage.type.primitive.mrr",
+                    "match": "\\b(i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f32|f64|bool|char|str|void|ptr|usize|isize|byte|bytes)\\b"
+                },
+                {
+                    "name": "storage.type.collection.mrr",
+                    "match": "\\b(list|dict|set|tuple|array|map|vec|option|result|Option|Result)\\b"
+                },
+                {
+                    "name": "entity.name.type.mrr",
+                    "match": "\\b[A-Z][a-zA-Z0-9_]*\\b"
+                }
+            ]
+        },
+        "cyber_keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.cyber.ring0.mrr",
+                    "match": "\\b(kernel|ring0|syscall|interrupt|port|driver)\\b"
+                },
+                {
+                    "name": "keyword.cyber.exploit.mrr",
+                    "match": "\\b(asm|shellcode|inject|hook|exploit)\\b"
+                }
+            ]
+        },
+        "network_keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.network.mrr",
+                    "match": "\\b(socket|connect|listen|bind|accept|send|recv|sniff|craft|proxy|socks5|http_get|http_post|https|tls|ssl|dns|icmp|tcp|udp|raw_socket|pcap|packet)\\b"
+                }
+            ]
+        },
+        "security_keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.security.mrr",
+                    "match": "\\b(memory|scan|payload|buffer|overflow|heap|stack_pivot|gadget|rop|nop_sled|xor_encode|pattern_create|pattern_offset|shellcode_gen|obfuscate|encrypt|decrypt|hash_md5|hash_sha256|base64_encode|base64_decode)\\b"
+                }
+            ]
+        },
+        "async_keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.async.mrr",
+                    "match": "\\b(async|await|spawn|channel|select|mutex|lock|unlock|atomic|future|promise)\\b"
+                }
+            ]
+        },
+        "operators": {
+            "patterns": [
+                {
+                    "name": "keyword.operator.arrow.mrr",
+                    "match": "(->|=>|::)"
+                },
+                {
+                    "name": "keyword.operator.pipe.mrr",
+                    "match": "\\|>"
+                },
+                {
+                    "name": "keyword.operator.null-coalesce.mrr",
+                    "match": "\\?\\?"
+                },
+                {
+                    "name": "keyword.operator.comparison.mrr",
+                    "match": "(==|!=|<=|>=|<|>)"
+                },
+                {
+                    "name": "keyword.operator.assignment.mrr",
+                    "match": "(\\+=|-=|\\*=|/=|%=|&=|\\|=|\\^=|<<=|>>=|\\*\\*=|=)"
+                },
+                {
+                    "name": "keyword.operator.logical.mrr",
+                    "match": "(&&|\\|\\||!)"
+                },
+                {
+                    "name": "keyword.operator.bitwise.mrr",
+                    "match": "(&|\\||\\^|~|<<|>>)"
+                },
+                {
+                    "name": "keyword.operator.range.mrr",
+                    "match": "\\.\\.\\.?"
+                },
+                {
+                    "name": "keyword.operator.arithmetic.mrr",
+                    "match": "\\*\\*"
+                }
+            ]
+        },
+        "functions": {
+            "patterns": [
+                {
+                    "name": "support.function.builtin.mrr",
+                    "match": "\\b(print|println|input|len|range|append|pop|abs|min|max|typeof|sizeof|exit|time|hex|bin|oct|split|join|replace|upper|lower|trim|contains|starts_with|ends_with|format|chr|ord|reverse|sort|map|filter|reduce|enumerate|zip|keys|values|items|has_key|insert|remove|slice|flat|round|pow|sqrt|sleep|random_int|assert|type_name|hash|id|readfile|writefile|integer|float|str|bool|byte)\\s*(?=\\()"
+                },
+                {
+                    "name": "support.function.io.mrr",
+                    "match": "\\b(file_open|file_close|file_read_lines|file_append|file_exists|file_delete|file_copy|file_size|dir_list|dir_create|dir_exists|path_join)\\s*(?=\\()"
+                },
+                {
+                    "name": "support.function.string.mrr",
+                    "match": "\\b(pad_left|pad_right|substring|char_at|index_of|repeat|is_numeric|is_alpha|capitalize|title_case|regex_match|regex_find_all|regex_replace|encode_base64|decode_base64|encode_url|decode_url)\\s*(?=\\()"
+                },
+                {
+                    "name": "support.function.collection.mrr",
+                    "match": "\\b(find|find_index|every|some|unique|chunk|flatten|group_by)\\s*(?=\\()"
+                },
+                {
+                    "name": "support.function.datetime.mrr",
+                    "match": "\\b(now|now_str|date_format|date_parse|date_diff|date_add|date_year|date_month|date_day|date_hour|date_minute|date_second|date_weekday|date_is_leap_year|stopwatch_start|stopwatch_elapsed)\\s*(?=\\()"
+                },
+                {
+                    "name": "support.function.http.mrr",
+                    "match": "\\b(http_get|http_post|http_put|http_delete|http_download|json_parse|json_stringify)\\s*(?=\\()"
+                },
+                {
+                    "name": "entity.name.function.mrr",
+                    "match": "\\b([a-z_][a-zA-Z0-9_]*)\\s*(?=\\()"
+                }
+            ]
+        },
+        "mrr_commands": {
+            "patterns": [
+                {
+                    "name": "keyword.control.function.mrr",
+                    "match": "\\b(Fonction\\.create|Function\\.create)\\b"
+                },
+                {
+                    "name": "keyword.control.import.mrr",
+                    "match": "\\b(add\\.code)\\b"
+                },
+                {
+                    "name": "keyword.control.mrr",
+                    "match": "\\b(mrr\\.run|mrr\\.debug|return\\.code)\\b"
+                }
+            ]
+        },
+        "decorators": {
+            "patterns": [
+                {
+                    "name": "meta.decorator.mrr",
+                    "match": "@[a-zA-Z_][a-zA-Z0-9_]*",
+                    "captures": {
+                        "0": { "name": "entity.name.function.decorator.mrr" }
+                    }
+                }
+            ]
+        },
+        "attributes": {
+            "patterns": [
+                {
+                    "name": "meta.attribute.mrr",
+                    "begin": "#\\[",
+                    "end": "\\]",
+                    "patterns": [
+                        {
+                            "name": "entity.other.attribute-name.mrr",
+                            "match": "[a-zA-Z_][a-zA-Z0-9_]*"
+                        }
+                    ]
+                }
+            ]
+        },
+        "variables": {
+            "patterns": [
+                {
+                    "name": "variable.other.level3.mrr",
+                    "match": "@@@[a-zA-Z_][a-zA-Z0-9_]*"
+                },
+                {
+                    "name": "variable.other.level2.mrr",
+                    "match": "@@[a-zA-Z_][a-zA-Z0-9_]*"
+                },
+                {
+                    "name": "variable.other.level1.mrr",
+                    "match": "@[a-zA-Z_][a-zA-Z0-9_]*"
+                },
+                {
+                    "name": "variable.other.mrr",
+                    "match": "\\b[a-z_][a-zA-Z0-9_]*\\b"
+                }
+            ]
+        }
+    }
+}

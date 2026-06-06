@@ -1,0 +1,70 @@
+# MRR Loader Configuration
+# This file controls the automated installation behavior
+
+installation:
+  # Default install directory (null = auto-detect per OS)
+  install_dir: null
+  
+  # Build configuration
+  build_type: "Release"    # Debug | Release | RelWithDebInfo
+  parallel_jobs: 0         # 0 = auto (number of CPU cores)
+  
+  # Components to install
+  components:
+    compiler: true
+    runtime: true
+    debugger: true
+    vsix_language: true
+    vsix_debugger: true
+    stdlib: true
+    examples: true
+    docs: true
+
+compiler:
+  # CMake generator (null = auto-detect)
+  cmake_generator: null    # "Visual Studio 17 2022" | "Ninja" | "Unix Makefiles"
+  
+  # C++ compiler (null = auto-detect)
+  cxx_compiler: null       # Path to C++ compiler
+  
+  # Additional CMake flags
+  cmake_flags: []
+
+vsix:
+  # Auto-detect Visual Studio installation
+  auto_detect_vs: true
+  
+  # Visual Studio version preference (newest first)
+  vs_preference:
+    - "2025"
+    - "2022"
+  
+  # Register .mrr file association
+  register_file_association: true
+
+debugger:
+  # DAP adapter port (for VS Code remote debugging)
+  dap_port: 4711
+  
+  # Enable kernel-mode debugging support
+  kernel_debug: false
+
+environment:
+  # Set MRR_HOME environment variable
+  set_mrr_home: true
+  
+  # Add compiler to system PATH
+  add_to_path: true
+  
+  # Create desktop shortcut (Windows)
+  create_shortcut: false
+
+logging:
+  # Log level: DEBUG | INFO | WARN | ERROR
+  level: "INFO"
+  
+  # Log file path (null = no file logging)
+  log_file: null
+  
+  # Cyber-themed output
+  themed_output: true

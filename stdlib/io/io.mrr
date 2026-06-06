@@ -1,0 +1,31 @@
+/// MRR Standard Library — I/O Module
+/// Console output, file I/O, stream abstractions
+
+module std::io
+
+/// Print a string to stdout (no newline)
+pub fn print(msg: str) {
+    unsafe { __mrr_write_stdout(msg.as_ptr(), msg.len()) }
+}
+
+/// Print a string to stdout with newline
+pub fn println(msg: str) {
+    print(msg)
+    print("\n")
+}
+
+/// Print to stderr
+pub fn eprint(msg: str) {
+    unsafe { __mrr_write_stderr(msg.as_ptr(), msg.len()) }
+}
+
+/// Print to stderr with newline
+pub fn eprintln(msg: str) {
+    eprint(msg)
+    eprint("\n")
+}
+
+/// Read a line from stdin
+pub fn read_line() -> str {
+    unsafe { __mrr_read_stdin_line() }
+}

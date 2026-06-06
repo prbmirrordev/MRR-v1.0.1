@@ -1,0 +1,158 @@
+{
+    "MRR Function": {
+        "prefix": "fn",
+        "body": [
+            "pub fn ${1:name}(${2:params}) -> ${3:i32} {",
+            "\t${0}",
+            "}"
+        ],
+        "description": "MRR function declaration"
+    },
+    "MRR Main": {
+        "prefix": "main",
+        "body": [
+            "#[entry]",
+            "pub fn main() -> i32 {",
+            "\t${0}",
+            "\t0",
+            "}"
+        ],
+        "description": "MRR main entry point"
+    },
+    "MRR Struct": {
+        "prefix": "struct",
+        "body": [
+            "pub struct ${1:Name} {",
+            "\tpub ${2:field}: ${3:type}",
+            "}"
+        ],
+        "description": "MRR struct declaration"
+    },
+    "MRR Trait": {
+        "prefix": "trait",
+        "body": [
+            "pub trait ${1:Name} {",
+            "\tfn ${2:method}(ref self) -> ${3:type}",
+            "}"
+        ],
+        "description": "MRR trait declaration"
+    },
+    "MRR Impl": {
+        "prefix": "impl",
+        "body": [
+            "impl ${1:Type} {",
+            "\tpub fn ${2:method}(ref self) -> ${3:type} {",
+            "\t\t${0}",
+            "\t}",
+            "}"
+        ],
+        "description": "MRR implementation block"
+    },
+    "MRR Unsafe Block": {
+        "prefix": "unsafe",
+        "body": [
+            "unsafe {",
+            "\t${0}",
+            "}"
+        ],
+        "description": "MRR unsafe block"
+    },
+    "MRR Shellcode": {
+        "prefix": "shellcode",
+        "body": [
+            "let sc = shellcode x86_64 {",
+            "\t${0}",
+            "}"
+        ],
+        "description": "MRR shellcode block"
+    },
+    "MRR Inline Assembly": {
+        "prefix": "asm",
+        "body": [
+            "asm {",
+            "\t\"${1:instruction}\"",
+            "\t: \"=${2:a}\"(${3:output})",
+            "\t: \"${4:a}\"(${5:input})",
+            "\t: \"${6:clobbers}\"",
+            "}"
+        ],
+        "description": "MRR inline assembly"
+    },
+    "MRR Driver": {
+        "prefix": "driver",
+        "body": [
+            "#[target(\"windows\")]",
+            "pub driver ${1:Name} {",
+            "\tfn driver_entry(driver_object: ptr<void>, registry_path: ptr<u16>) -> i32 {",
+            "\t\tkernel::log(\"[MRR] Driver loaded\")",
+            "\t\t0",
+            "\t}",
+            "",
+            "\tfn driver_unload(driver_object: ptr<void>) {",
+            "\t\tkernel::log(\"[MRR] Driver unloading\")",
+            "\t}",
+            "}"
+        ],
+        "description": "MRR kernel driver skeleton"
+    },
+    "MRR Exploit Module": {
+        "prefix": "exploit",
+        "body": [
+            "pub exploit ${1:Name} {",
+            "\tauthor  = \"${2:author}\"",
+            "\ttarget  = \"${3:target}\"",
+            "\tdescription = \"${4:description}\"",
+            "",
+            "\tfn check() -> bool {",
+            "\t\t${5:true}",
+            "\t}",
+            "",
+            "\tfn payload() {",
+            "\t\t${0}",
+            "\t}",
+            "",
+            "\tfn exploit() {",
+            "\t\tif not check() { return }",
+            "\t\tpayload()",
+            "\t}",
+            "}"
+        ],
+        "description": "MRR exploit module"
+    },
+    "MRR Hook": {
+        "prefix": "hook",
+        "body": [
+            "hook ${1:FunctionName}(type = \"${2|inline,iat,eat,ssdt|}\") {",
+            "\tfn before(args: ref kernel::SyscallArgs) {",
+            "\t\t${0}",
+            "\t}",
+            "",
+            "\tfn after(result: i32) {",
+            "\t\t",
+            "\t}",
+            "}"
+        ],
+        "description": "MRR function hook"
+    },
+    "MRR Match": {
+        "prefix": "match",
+        "body": [
+            "match ${1:value} {",
+            "\t${2:pattern} => ${3:result},",
+            "\t_ => ${0:default}",
+            "}"
+        ],
+        "description": "MRR pattern matching"
+    },
+    "MRR Module": {
+        "prefix": "module",
+        "body": [
+            "module ${1:name}",
+            "",
+            "use std::io",
+            "",
+            "${0}"
+        ],
+        "description": "MRR module declaration"
+    }
+}

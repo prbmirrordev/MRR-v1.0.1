@@ -1,0 +1,135 @@
+{
+    "name": "mrr-language-support",
+    "displayName": "MRR Language",
+    "description": "Syntax highlighting, IntelliSense, and debugging support for the MRR programming language",
+    "version": "0.2.0",
+    "publisher": "mrr-lang",
+    "main": "./extension.js",
+    "activationEvents": [
+        "onLanguage:mrr"
+    ],
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Debuggers",
+        "Snippets"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "mrr",
+                "aliases": [
+                    "MRR",
+                    "mrr"
+                ],
+                "extensions": [
+                    ".mrr"
+                ],
+                "configuration": "./language-configuration.json",
+                "icon": {
+                    "light": "./assets/mrr.ico",
+                    "dark": "./assets/mrr.ico"
+                }
+            }
+        ],
+        "grammars": [
+            {
+                "language": "mrr",
+                "scopeName": "source.mrr",
+                "path": "./Grammars/mrr.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "mrr",
+                "path": "./Snippets/mrr.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "mrr.runCode",
+                "title": "Run MRR File",
+                "icon": "$(play)"
+            }
+        ],
+        "menus": {
+            "editor/title/run": [
+                {
+                    "command": "mrr.runCode",
+                    "when": "resourceExtname == .mrr",
+                    "group": "navigation"
+                }
+            ]
+        },
+        "debuggers": [
+            {
+                "type": "mrr-debug",
+                "label": "MRR Interpreter",
+                "program": "${command:AskForProgramName}",
+                "runtime": "python",
+                "runtimeArgs": [
+                    "-m",
+                    "interpreter.main",
+                    "run"
+                ],
+                "configurationAttributes": {
+                    "launch": {
+                        "required": [
+                            "program"
+                        ],
+                        "properties": {
+                            "program": {
+                                "type": "string",
+                                "description": "Absolute path to the .mrr file.",
+                                "default": "${file}"
+                            },
+                            "debug": {
+                                "type": "boolean",
+                                "description": "Enable debug output (Token/AST logs)",
+                                "default": false
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "mrr-debug",
+                        "request": "launch",
+                        "name": "Run MRR File (Interpreter)",
+                        "program": "${file}",
+                        "debug": false
+                    }
+                ]
+            }
+        ],
+        "configurationDefaults": {
+            "editor.tokenColorCustomizations": {
+                "textMateRules": [
+                    {
+                        "scope": "variable.other.level1.mrr",
+                        "settings": {
+                            "foreground": "#4D90FE"
+                        }
+                    },
+                    {
+                        "scope": "variable.other.level2.mrr",
+                        "settings": {
+                            "foreground": "#FF9800"
+                        }
+                    },
+                    {
+                        "scope": "variable.other.level3.mrr",
+                        "settings": {
+                            "foreground": "#F44336"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "dependencies": {
+        "vscode-languageclient": "^8.1.0"
+    }
+}

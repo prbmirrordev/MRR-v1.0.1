@@ -1,0 +1,56 @@
+/// MRR Standard Library — Memory Module
+/// Raw memory manipulation, pointer utilities, allocators
+
+module std::mem
+
+/// Get the size of a type in bytes
+pub fn size_of<T>() -> usize {
+    // Compiler intrinsic
+    __builtin_sizeof::<T>()
+}
+
+/// Get the alignment of a type
+pub fn align_of<T>() -> usize {
+    __builtin_alignof::<T>()
+}
+
+/// Allocate `size` bytes on the heap (zeroed)
+pub fn alloc(size: usize) -> ptr<byte> {
+    unsafe { __mrr_alloc_zeroed(size) }
+}
+
+/// Free a heap allocation
+pub fn free(p: ptr<byte>) {
+    unsafe { __mrr_free(p) }
+}
+
+/// Copy `count` bytes from `src` to `dst`
+pub fn copy(src: ptr<byte>, dst: ptr<byte>, count: usize) {
+    unsafe { __mrr_memcpy(dst, src, count) }
+}
+
+/// Fill `count` bytes at `dst` with `value`
+pub fn set(dst: ptr<byte>, value: byte, count: usize) {
+    unsafe { __mrr_memset(dst, value, count) }
+}
+
+/// Securely zero memory (cannot be optimized away)
+pub fn secure_zero(p: ptr<byte>, size: usize) {
+    unsafe { __mrr_secure_zero(p, size) }
+}
+
+/// Minimum of two values
+pub fn min<T: Ord>(a: T, b: T) -> T {
+    if a.cmp(ref b) == Ordering::Less { a } else { b }
+}
+
+/// Maximum of two values
+pub fn max<T: Ord>(a: T, b: T) -> T {
+    if a.cmp(ref b) == Ordering::Greater { a } else { b }
+}
+
+// Memory protection constants
+pub const MEM_COMMIT: u32    = 0x1000
+pub const MEM_RESERVE: u32   = 0x2000
+pub const PAGE_EXECUTE_READWRITE: u32 = 0x40
+pub const PAGE_READONLY: u32 = 0x02

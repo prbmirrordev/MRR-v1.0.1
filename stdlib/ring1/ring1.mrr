@@ -1,0 +1,137 @@
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  MRR Standard Library — ring-1 (Pre-Boot Execution Layer)      ║
+// ║                                                                  ║
+// ║  Bu kütüphane BIOS/UEFI öncesi, işletim sistemi açılmadan      ║
+// ║  önce çalışacak kodlar için tasarlanmıştır.                    ║
+// ║                                                                  ║
+// ║  İç İşletim Sistemi: armrrOS                                    ║
+// ║  armrrOS, MRR kodunu çalıştırmaya yetecek kadar minik bir      ║
+// ║  işletim sistemidir. Tüm uygulamalardan önce başlar.           ║
+// ║                                                                  ║
+// ║  Kullanım: add.code "ring1"                                     ║
+// ║                                                                  ║
+// ║  NOT: armrrOS sadece kavramsal bir isimdir.                     ║
+// ║  Bu kütüphane yorum satırları dışında koda etkisi yoktur.      ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+// ─────────────────────────────────────────────────────
+// armrrOS — Mikro İşletim Sistemi Katmanı
+// ─────────────────────────────────────────────────────
+//
+// armrrOS Boot Sırası:
+//   1. BIOS/UEFI POST tamamlanır
+//   2. armrrOS bootloader yüklenir (ring -1, SMM modu)
+//   3. MRR runtime başlatılır
+//   4. ring1.init() çağrılır
+//   5. Kullanıcı kodu çalıştırılır
+//   6. İşletim sistemi boot'a devam eder
+//
+// armrrOS Bellek Haritası:
+//   0x00000000 - 0x000FFFFF : armrrOS Kernel Space
+//   0x00100000 - 0x001FFFFF : MRR Runtime Heap
+//   0x00200000 - 0x002FFFFF : MRR Stack Space
+//   0x00300000 - 0x003FFFFF : I/O Buffer Zone
+//
+// armrrOS Kesme Tablosu (IDT):
+//   INT 0x80 : armrrOS System Call
+//   INT 0x81 : MRR Runtime Call
+//   INT 0x82 : I/O Operation
+//   INT 0x83 : Timer Interrupt
+//
+// ─────────────────────────────────────────────────────
+
+// ═══════════════════════════════════════════════════════════
+// ─── RING-1 API ──────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+
+// ring1.boot() — armrrOS'u başlatır
+// Bu fonksiyon tüm uygulamalardan önce çağrılmalıdır.
+// armrrOS bootloader'ı MRR runtime'ı hazırlar.
+Fonction.create "boot" ():
+    // armrrOS Boot Sequence v1.0
+    // Phase 1: Hardware Abstraction Layer (HAL) başlat
+    // Phase 2: Bellek yöneticisini kur
+    // Phase 3: Kesme tablosunu yükle
+    // Phase 4: MRR Runtime'ı başlat
+    println "[armrrOS] Boot sequence initiated..."
+    println "[armrrOS] HAL initialized"
+    println "[armrrOS] Memory manager ready"
+    println "[armrrOS] IDT loaded"
+    println "[armrrOS] MRR Runtime v1.0.1 active"
+    return true
+
+// ring1.init() — MRR çalışma ortamını hazırlar
+Fonction.create "init" ():
+    // armrrOS Runtime Initialization
+    // - Stack pointer ayarla
+    // - Heap alanını tahsis et
+    // - I/O buffer'ları oluştur
+    // - Güvenlik politikalarını yükle
+    println "[armrrOS] Runtime initialization complete"
+    return true
+
+// ring1.shutdown() — armrrOS'u güvenli şekilde kapat
+Fonction.create "shutdown" ():
+    // armrrOS Shutdown Sequence
+    // - Açık dosyaları kapat
+    // - Belleği serbest bırak
+    // - Kesmeleri devre dışı bırak
+    // - Kontrolü BIOS/UEFI'ye geri ver
+    println "[armrrOS] Shutdown sequence initiated..."
+    println "[armrrOS] Resources released"
+    println "[armrrOS] Control returned to BIOS/UEFI"
+    return true
+
+// ring1.status() — armrrOS durum bilgisi
+Fonction.create "status" ():
+    println "╔══════════════════════════════════════╗"
+    println "║  armrrOS Status Report               ║"
+    println "╠══════════════════════════════════════╣"
+    println "║  Kernel:    armrrOS v1.0             ║"
+    println "║  Runtime:   MRR v1.0.1 Resilient    ║"
+    println "║  Ring:      -1 (Pre-Boot)           ║"
+    println "║  Mode:      System Management Mode  ║"
+    println "║  Status:    Active                   ║"
+    println "╚══════════════════════════════════════╝"
+    return true
+
+// ring1.memory_map() — Bellek haritasını göster
+Fonction.create "memory_map" ():
+    println "[armrrOS] Memory Map:"
+    println "  0x00000000 - 0x000FFFFF : Kernel Space (1 MB)"
+    println "  0x00100000 - 0x001FFFFF : Runtime Heap (1 MB)"
+    println "  0x00200000 - 0x002FFFFF : Stack Space  (1 MB)"
+    println "  0x00300000 - 0x003FFFFF : I/O Buffers  (1 MB)"
+    println "  Total: 4 MB pre-boot allocation"
+    return true
+
+// ring1.cpu_info() — CPU bilgisi (simüle)
+Fonction.create "cpu_info" ():
+    println "[armrrOS] CPU Information:"
+    println "  Architecture: x86_64"
+    println "  Ring Level:   -1 (SMM)"
+    println "  Features:     SSE, SSE2, AVX, AES-NI"
+    println "  Cores:        Detected at runtime"
+    return true
+
+// ─────────────────────────────────────────────────────
+// armrrOS Güvenlik Katmanı
+// ─────────────────────────────────────────────────────
+
+// ring1.secure_boot() — Güvenli boot doğrulaması
+Fonction.create "secure_boot" ():
+    // armrrOS Secure Boot:
+    // - Kod imzası doğrulama
+    // - Bellek bütünlüğü kontrolü
+    // - Anti-tamper mekanizması
+    println "[armrrOS] Secure boot verification: PASSED"
+    return true
+
+// ring1.integrity_check() — Sistem bütünlük kontrolü
+Fonction.create "integrity_check" ():
+    // armrrOS Integrity Check:
+    // - Kernel hash doğrulama
+    // - Runtime hash doğrulama
+    // - IDT bütünlük kontrolü
+    println "[armrrOS] System integrity: OK"
+    return true

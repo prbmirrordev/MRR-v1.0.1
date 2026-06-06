@@ -1,0 +1,53 @@
+/// MRR Standard Library — Core Module
+/// Defines fundamental types, traits, and primitives
+
+module std::core
+
+/// Option type — represents an optional value
+pub enum Option<T> {
+    Some(T),
+    None
+}
+
+/// Result type — represents success or failure
+pub enum Result<T, E> {
+    Ok(T),
+    Err(E)
+}
+
+/// Ordering for comparisons
+pub enum Ordering {
+    Less,
+    Equal,
+    Greater
+}
+
+/// Clone trait — types that can be duplicated
+pub trait Clone {
+    fn clone(ref self) -> Self
+}
+
+/// Drop trait — custom cleanup (RAII destructor)
+pub trait Drop {
+    fn drop(mut ref self)
+}
+
+/// Debug trait — debug representation
+pub trait Debug {
+    fn debug_fmt(ref self) -> str
+}
+
+/// Display trait — user-facing string representation
+pub trait Display {
+    fn to_string(ref self) -> str
+}
+
+/// Comparable trait
+pub trait Ord {
+    fn cmp(ref self, other: ref Self) -> Ordering
+}
+
+/// Default trait — types with a default value
+pub trait Default {
+    fn default() -> Self
+}

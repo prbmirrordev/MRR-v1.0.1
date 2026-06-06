@@ -1,0 +1,45 @@
+/// MRR Standard Library — Network Module
+/// Portswinger Network Utilities
+
+module std::network
+
+add.code "portswinger"
+
+/// Make an HTTP GET request
+pub fn http_get(url: str, headers: str = "") -> dict {
+    // Portswinger bridge provided by add.code "portswinger"
+    return portswinger_http("GET", url, "", headers)
+}
+
+/// Make an HTTP POST request
+pub fn http_post(url: str, body: str, headers: str = "") -> dict {
+    return portswinger_http("POST", url, body, headers)
+}
+
+/// Create a standard socket
+/// family: 2 (AF_INET)
+/// type: 1 (SOCK_STREAM)
+pub fn create_socket(family: int = 2, type: int = 1, proto: int = 0) -> int {
+    return portswinger_socket_create(family, type, proto)
+}
+
+/// Connect socket
+pub fn connect(fd: int, host: str, port: int) -> int {
+    return portswinger_socket_connect(fd, host, port)
+}
+
+/// Send data via socket
+pub fn send(fd: int, data: str) -> int {
+    // String to bytes handled internally
+    return portswinger_socket_send(fd, data)
+}
+
+/// Receive data from socket
+pub fn recv(fd: int, size: int) -> str {
+    return portswinger_socket_recv(fd, size)
+}
+
+/// Close socket
+pub fn close(fd: int) -> void {
+    portswinger_socket_close(fd)
+}

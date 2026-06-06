@@ -1,0 +1,31 @@
+/// MRR Standard Library — Memory Module
+/// Memory Reader & Exploit Utilities
+
+module std::memory
+
+add.code "memory_reader"
+
+/// Attach to a running process by name or PID
+/// NOTE: Can only be used inside `unsafe` or `exploit` blocks.
+pub fn attach(target: Any) -> Any {
+    unsafe:
+        // memory_reader is provided by the bridge (mrr_memory_bridge.py)
+        // which registers 'memory_attach' as a builtin when add.code "memory_reader" is used.
+        return memory_attach(target)
+}
+
+/// Get the list of running processes
+pub fn process_list() -> list {
+    unsafe:
+        return memory_process_list()
+}
+
+/// Exploit Template: Search for a specific pattern in a module's memory
+/// Very basic implementation outline for demonstration
+pub fn scan_pattern(reader: Any, module_name: str, pattern_hex: str) -> ptr {
+    unsafe:
+        let base_addr = reader.get_base_address(module_name)
+        // A complete scanner would parse pattern_hex, read pages, and match bytes.
+        // This is a placeholder for the actual implementation.
+        return base_addr
+}
