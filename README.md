@@ -1,10 +1,16 @@
 # MRR V1.0.1
 
+<div align="center">
+
+# 🌐 MRR Programlama Dili: Tersine Mühendislik, Malware geliştirme, exploit geliştirme ve payload, reverse shelll konularında uzmanlaşmış dil
+**payload, exploit, reverse shell, memory accesi ekstra yetenek veya dll dosya olmadan tek satırda halleden yetenek**
+
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Version](https://img.shields.io/badge/version-1.0.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-red)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgreen)
 
+</div>
 
 # MRR Programlama Dili Rehberi
 
