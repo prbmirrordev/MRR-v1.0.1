@@ -4,7 +4,7 @@
 # 🌐 MRR Programlama Dili: Tersine Mühendislik, Malware geliştirme, exploit geliştirme, payload geliştirme, reverse shell açma konusunda 1. seviye
 **yeni güncelleme ile beraber ağ üzerinden module paylaşımı payload geliştirme reversel shell açma gibi birden fazla işlem eklendi**
 
-![Build Status](https://img.shields.io/badge/build-passing-brightred)
+![Build Status](https://img.shields.io/badge/build-passing-red)
 ![Version](https://img.shields.io/badge/version-1.0.1-orange)
 ![License](https://img.shields.io/badge/license-MIT-purple)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgreen)
