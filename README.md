@@ -640,3 +640,382 @@ MRR dilini daha iyi kullanmak için:
 - `interpreter/` altında `lexer`, `parser`, `evaluator` yapısını takip edin
 
 Bu belge, MRR’nin ne yaptığını, hangi özellikleri sunduğunu ve nasıl kullanılacağını anlatan kapsamlı bir başlangıç kaynağıdır.
+
+
+# KERNEL DOSYALARIN VE SİSTEM DOSYALARININ ŞEMASI
+
+```mrr
+├───.venv
+│   ├───Include
+│   ├───Lib
+│   │   └───site-packages
+│   │       ├───pip
+│   │       │   ├───_internal
+│   │       │   │   ├───cli
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───commands
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───distributions
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───index
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───locations
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───metadata
+│   │       │   │   │   ├───importlib
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───models
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───network
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───operations
+│   │       │   │   │   ├───build
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   ├───install
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───req
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───resolution
+│   │       │   │   │   ├───legacy
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   ├───resolvelib
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───utils
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───vcs
+│   │       │   │   │   └───__pycache__
+│   │       │   │   └───__pycache__
+│   │       │   ├───_vendor
+│   │       │   │   ├───cachecontrol
+│   │       │   │   │   ├───caches
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───certifi
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───distlib
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───distro
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───idna
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───msgpack
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───packaging
+│   │       │   │   │   ├───licenses
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───pkg_resources
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───platformdirs
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───pygments
+│   │       │   │   │   ├───filters
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   ├───formatters
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   ├───lexers
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   ├───styles
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───pyproject_hooks
+│   │       │   │   │   ├───_in_process
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───requests
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───resolvelib
+│   │       │   │   │   ├───resolvers
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───rich
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───tomli
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───tomli_w
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───truststore
+│   │       │   │   │   └───__pycache__
+│   │       │   │   ├───urllib3
+│   │       │   │   │   ├───contrib
+│   │       │   │   │   │   ├───emscripten
+│   │       │   │   │   │   │   └───__pycache__
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   ├───http2
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   ├───util
+│   │       │   │   │   │   └───__pycache__
+│   │       │   │   │   └───__pycache__
+│   │       │   │   └───__pycache__
+│   │       │   └───__pycache__
+│   │       └───pip-26.1.2.dist-info
+│   │           └───licenses
+│   │               └───src
+│   │                   └───pip
+│   │                       └───_vendor
+│   │                           ├───cachecontrol
+│   │                           ├───certifi
+│   │                           ├───distlib
+│   │                           ├───distro
+│   │                           ├───idna
+│   │                           ├───msgpack
+│   │                           ├───packaging
+│   │                           ├───pkg_resources
+│   │                           ├───platformdirs
+│   │                           ├───pygments
+│   │                           ├───pyproject_hooks
+│   │                           ├───requests
+│   │                           ├───resolvelib
+│   │                           ├───rich
+│   │                           ├───tomli
+│   │                           ├───tomli_w
+│   │                           ├───truststore
+│   │                           └───urllib3
+│   └───Scripts
+├───assets
+├───bin
+├───builder
+├───compiler
+│   ├───include
+│   │   └───mrr
+│   │       ├───codegen
+│   │       ├───driver
+│   │       ├───ir
+│   │       ├───lexer
+│   │       ├───parser
+│   │       └───sema
+│   ├───pipeline
+│   │   └───__pycache__
+│   ├───src
+│   │   ├───codegen
+│   │   ├───driver
+│   │   ├───ir
+│   │   ├───lexer
+│   │   ├───parser
+│   │   └───sema
+│   └───tests
+├───debugger
+│   ├───include
+│   │   └───mrr
+│   │       ├───core
+│   │       └───dap
+│   └───src
+│       ├───bridge
+│       ├───core
+│       └───dap
+├───docs
+├───examples
+├───interpreter
+│   ├───bridges
+│   ├───lsp
+│   └───__pycache__
+├───library
+├───loader
+├───optimizer
+├───runtime
+│   └───src
+│       ├───crypto
+│       ├───kernel
+│       ├───memory
+│       └───net
+├───stdlib
+│   ├───core
+│   ├───exploit
+│   ├───io
+│   ├───mem
+│   ├───memory
+│   ├───network
+│   └───ring1
+└───vsix
+    └───MRR.Language
+        ├───assets
+        ├───Grammars
+        └───Snippets
+```
+
+
+# TÜM DOSYA ŞEMASI VE AÇIKLAMALARI
+
+
+```mrr
+mrr/
+├── README.md                    (Ana dokümantasyon - MRR dili rehberi)
+├── KURULUM.md                   (Kurulum talimatları)
+├── ogren.md                     (Öğrenme rehberi)
+├── new_update.md                (Yeni güncellemeler)
+│
+├── install.ps1                  (PowerShell kurulum scripti)
+├── kalinstall.sh                (Linux kurulum scripti)
+├── mainİnstall.bat              (Windows kurulum batı)
+├── ing.sh                        (Bash kurulum scripti)
+├── ing.bat                       (Batch kurulum scripti)
+│
+├── .gitignore                   (Git ignore kuralları)
+├── .gitattribute                (Git özellikleri)
+│
+├── scratch.mrr                  (MRR deneme dosyası)
+├── scratch.py                   (Python deneme dosyası)
+│
+├── bin/                         (Yürütülebilir dosyalar)
+│   ├── mrr.bat                  (MRR Windows çalıştırıcısı)
+│   └── mrrinstall.bat           (MRR Windows kurulucu)
+│
+├── assets/                      (Proje varlıkları)
+│   └── mrr.ico                  (MRR simgesi)
+│
+├── compiler/                    (MRR Derleyici - C++)
+│   ├── CMakeLists.txt           (CMake yapılandırması)
+│   ├── include/mrr/             (Başlık dosyaları)
+│   │   ├── lexer/               (Sözcüksel çözümleyici)
+│   │   ├── parser/              (Sözdizimsel çözümleyici)
+│   │   ├── ir/                  (Ara Temsil)
+│   │   ├── sema/                (Semantik analiz)
+│   │   ├── codegen/             (Kod üretimi)
+│   │   └── driver/              (CLI ve sürücü)
+│   ├── src/                     (Kaynak dosyaları)
+│   │   ├── lexer/               (Tokenizer)
+│   │   ├── parser/              (AST inşaatçısı)
+│   │   ├── ir/                  (IR oluşturma)
+│   │   ├── sema/                (Tür kontrol ve sembol tablosu)
+│   │   ├── codegen/             (x86_64 kod üretimi)
+│   │   └── driver/              (Ana sürücü ve CLI)
+│   ├── pipeline/                (Yapı hattı)
+│   │   ├── build_pipeline.py    (Python yapı hattı)
+│   │   ├── llvm_codegen.py      (LLVM kod üretimi)
+│   │   ├── obfuscator.py        (Kod karıştırıcı)
+│   │   └── signer.py            (Dijital imzalama)
+│   └── tests/                   (Derleyici testleri)
+│
+├── debugger/                    (MRR Hata Ayıklayıcı)
+│   ├── CMakeLists.txt           (CMake yapılandırması)
+│   ├── dap_server.py            (Debug Adapter Protocol sunucusu)
+│   ├── include/mrr/             (Başlık dosyaları)
+│   │   ├── dap/                 (DAP protokolü)
+│   │   └── core/                (Hata ayıklama çekirdeği)
+│   └── src/                     (Kaynak dosyaları)
+│       ├── main.cpp             (Ana hata ayıklayıcı giriş)
+│       ├── dap/                 (DAP sunucusu uygulaması)
+│       ├── core/                (Çekirdek hata ayıklama mantığı)
+│       └── bridge/              (Kernel bağlantı köprüsü)
+│
+├── interpreter/                 (MRR Yorumlayıcı - Python)
+│   ├── main.py                  (Ana giriş noktası)
+│   ├── __init__.py              (Modül başlatma)
+│   ├── mrr_lexer.py             (Token üreticisi)
+│   ├── mrr_parser.py            (AST inşaatçısı)
+│   ├── mrr_evaluator.py         (AST değerlendirici)
+│   ├── mrr_builder.py           (Yapı yardımcısı)
+│   ├── mrr_formatter.py         (Kod biçimlendiricisi)
+│   ├── mrr_analyzer.py          (Statik analizci)
+│   ├── mrr_autocorrect.py       (Otomatik düzeltme)
+│   ├── mrr_ffi.py               (FFI bağlantısı)
+│   ├── mrr_gui.py               (GUI arayüzü)
+│   ├── mrr_repl.py              (Etkileşimli REPL)
+│   ├── mrr_pkg.py               (Paket yönetimi)
+│   ├── mrr_locale.py            (Lokalizasyon)
+│   ├── lsp/                     (Language Server Protocol)
+│   │   ├── __init__.py
+│   │   ├── protocol.py          (LSP protokolü)
+│   │   └── server.py            (LSP sunucusu)
+│   └── bridges/                 (Harici sistem köprüleri)
+│       ├── __init__.py
+│       ├── mrr_memory_bridge.py (Bellek bağlantı köprüsü)
+│       └── mrr_portswinger_bridge.py (Portswinger köprüsü)
+│
+├── runtime/                     (MRR Çalışma Zamanı)
+│   ├── CMakeLists.txt           (CMake yapılandırması)
+│   └── src/                     (Çalışma zamanı kaynakları)
+│       ├── crypto/              (Şifreleme)
+│       ├── kernel/              (Kernel API'si)
+│       ├── memory/              (Bellek yönetimi)
+│       └── net/                 (Ağ tabakası)
+│
+├── library/                     (Yerleşik Kütüphaneler)
+│   ├── crypto.c/h               (Kriptografi)
+│   ├── datetime.c/h             (Tarih/Saat)
+│   ├── hex.c/h                  (Hex kodlama)
+│   ├── json.c/h                 (JSON ayrıştırıcı)
+│   ├── maths.c/h                (Matematik işlemleri)
+│   ├── network.c/h              (Ağ işlemleri)
+│   ├── os.c/h                   (İşletim sistemi API)
+│   ├── random.c/h               (Rastgele sayı üretimi)
+│   ├── requests.c/h             (HTTP istekleri)
+│   ├── response.c/h             (HTTP yanıtları)
+│   ├── sys.c/h                  (Sistem çağrıları)
+│   ├── xor.c/h                  (XOR şifreleme)
+│   ├── memory_reader.cpp/h      (Bellek okuyucu)
+│   ├── portswinger.cpp/h        (Port yönlendirme)
+│   ├── portswinger_raw.cpp/h    (Ham port yönlendirme)
+│   ├── portswinger.dll          (Derlenmiş DLL)
+│   ├── memory_reader.dll        (Derlenmiş DLL)
+│   ├── generator.py             (Jeneratör)
+│   └── ring-1.mrr               (Ring-1 kütüphanesi)
+│
+├── stdlib/                      (Standart Kütüphane)
+│   ├── core/
+│   │   └── core.mrr             (Çekirdek işlevler)
+│   ├── io/
+│   │   └── io.mrr               (Giriş/Çıkış)
+│   ├── mem/
+│   │   └── mem.mrr              (Bellek işlemleri)
+│   ├── memory/
+│   │   └── memory.mrr           (Gelişmiş bellek)
+│   ├── network/
+│   │   └── portswinger.mrr      (Ağ yardımcıları)
+│   ├── exploit/
+│   │   └── exploit.mrr          (Exploit kütüphanesi)
+│   └── ring1/
+│       └── ring1.mrr            (Ring-1 işlevler)
+│
+├── docs/                        (Belgeler)
+│   └── language_spec.md         (Dil belirtimi)
+│
+├── examples/                    (Örnek MRR Programları)
+│   ├── hello.mrr                (Merhaba Dünya)
+│   ├── test_integer.mrr         (Tam sayı testi)
+│   ├── test_ua.mrr              (User-Agent testi)
+│   ├── ffi_test.mrr             (FFI testi)
+│   ├── gui_test.mrr             (GUI testi)
+│   ├── file_regex.mrr           (Dosya regex)
+│   ├── hesap_makinesi.mrr       (Hesap makinesi)
+│   ├── http_client.mrr          (HTTP istemcisi)
+│   ├── network_test.mrr         (Ağ testi)
+│   ├── memory_scan.mrr          (Bellek taraması)
+│   ├── memory_scanner.mrr       (Bellek tarayıcı)
+│   ├── shellcode_gen.mrr        (Shellcode üreticisi)
+│   ├── kernel_driver.mrr        (Kernel sürücü)
+│   ├── vuln_scanner.mrr         (Güvenlik açığı tarayıcısı)
+│   ├── vuln_scanner_nmap.mrr    (Nmap tabanlı tarayıcı)
+│   ├── scratch_mem.mrr          (Bellek çalışması)
+│   └── input.txt                (Test girişi)
+│
+├── builder/                     (Yapılandırıcı Araçları)
+│   ├── MrrBuilder.cs            (C# yapılandırıcı)
+│   └── MrrBuilder.java          (Java yapılandırıcı)
+│
+├── optimizer/                   (Kod Optimize Edicisi)
+│   └── MrrOptimizer.java        (Java optimizeri)
+│
+├── loader/                      (Modül Yükleyicisi)
+│   ├── loader.py                (Python yükleyici)
+│   └── config.yaml              (Yapılandırma dosyası)
+│
+└── vsix/                        (VS Code Eklentisi)
+    └── MRR.Language/
+        ├── package.json         (Eklenti manifest)
+        ├── extension.js         (Eklenti giriş noktası)
+        ├── language-configuration.json (Dil yapılandırması)
+        ├── Grammars/            (Sözdizimi vurgulama)
+        │   └── mrr.tmLanguage.json
+        ├── Snippets/            (Kod parçacıkları)
+        │   └── mrr.json
+        ├── assets/              (Görsel varlıklar)
+        │   └── mrr.ico
+        └── mrr-language-support-0.1.0.vsix (Paketlenmiş eklenti)
+
+```
+
+# **BİZİ SEÇTİĞİNİZ İÇİN TEŞEKKÜRLER**
